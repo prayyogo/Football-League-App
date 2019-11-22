@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Football League</string>
+    <string name="description">DESCRIPTION</string>
+    <string name="previous_match">Previous Match</string>
+    <string name="next_match">Next Match</string>
+    <string name="detail_match">Detail Match</string>
+    <string name="badge_team">Badge</string>
+    <string name="colon">:</string>
+    <string name="strip">-</string>
+    <string name="search">Search</string>
+    <string name="no_found_data">No Found Data</string>
+    <string name="no_event_match">No Event Match</string>
+    <string name="information">INFORMATION</string>
+    <string name="time">Time</string>
+    <string name="goals_detail">Goal Detail</string>
+    <string name="red_card">Red Card</string>
+    <string name="yellow_card">Yellow Card</string>
+    <string name="goal_keeper">Goal Keeper</string>
+    <string name="defense">Defense</string>
+    <string name="mid_field">Mid Field</string>
+    <string name="forward">Forward</string>
+    <string name="substitutes">Substitute</string>
+    <string-array name="country_name">
+        <item>England</item>
+        <item>Europe</item>
+        <item>France</item>
+        <item>Italy</item>
+        <item>Spain</item>
+        <item>Germany</item>
+        <item>Argentina</item>
+        <item>Brazil</item>
+    </string-array>
+</resources>

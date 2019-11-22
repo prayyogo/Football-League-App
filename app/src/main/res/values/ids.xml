@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="tv_league_name" type="id" />
+    <item name="img_league_logo" type="id" />
+    <item name="vp_viewpager" type="id" />
+    <item name="tv_match_date" type="id" />
+    <item name="tv_match_time" type="id" />
+    <item name="img_team_win_badge" type="id" />
+    <item name="tv_team_win_name" type="id" />
+    <item name="tv_team_win_score" type="id" />
+    <item name="tv_team_win_goal_detail" type="id" />
+    <item name="tv_team_win_red_card" type="id" />
+    <item name="tv_team_win_yellow_card" type="id" />
+    <item name="tv_team_win_goal_keeper" type="id" />
+    <item name="tv_team_win_defense" type="id" />
+    <item name="tv_team_win_mid_field" type="id" />
+    <item name="tv_team_win_forward" type="id" />
+    <item name="tv_team_win_substitutes" type="id" />
+
+    <item name="tv_team_lose_score" type="id" />
+    <item name="tv_team_lose_name" type="id" />
+    <item name="img_team_lose_badge" type="id" />
+    <item name="tv_team_lose_goal_detail" type="id" />
+    <item name="tv_team_lose_red_card" type="id" />
+    <item name="tv_team_lose_yellow_card" type="id" />
+    <item name="tv_team_lose_goal_keeper" type="id" />
+    <item name="tv_team_lose_defense" type="id" />
+    <item name="tv_team_lose_mid_field" type="id" />
+    <item name="tv_team_lose_forward" type="id" />
+    <item name="tv_team_lose_substitutes" type="id" />
+</resources>
