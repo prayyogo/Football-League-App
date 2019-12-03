@@ -68,7 +68,7 @@ class NextMatchFragment : Fragment(), MatchView, AnkoComponent<Context> {
         request = ApiRepository()
         gson = Gson()
         presenter = MatchPresenter(this, request, gson)
-        EspressoIdlingResource.increment()
+       // EspressoIdlingResource.increment()
         presenter.getNextMatchList(DetailLeagueActivity.leagueId)
 
         swipeRefresh.onRefresh {
@@ -92,9 +92,9 @@ class NextMatchFragment : Fragment(), MatchView, AnkoComponent<Context> {
     }
 
     override fun setTeamBadge(data: Team) {
-        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+        /*if (!EspressoIdlingResource.idlingresource.isIdleNow) {
             EspressoIdlingResource.decrement()
-        }
+        }*/
         index++
         for (match in tempListMatch) {
             if (match.winTeam == data.teamName) {
@@ -110,9 +110,9 @@ class NextMatchFragment : Fragment(), MatchView, AnkoComponent<Context> {
     }
 
     override fun getTeamBadge(data: List<Match>) {
-        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+      /*  if (!EspressoIdlingResource.idlingresource.isIdleNow) {
             EspressoIdlingResource.decrement()
-        }
+        }*/
         tempListMatch.clear()
         tempListMatch.addAll(data)
         listTeamName.clear()
@@ -124,7 +124,7 @@ class NextMatchFragment : Fragment(), MatchView, AnkoComponent<Context> {
 
         for (team in tempListTeamName) {
             presenter = MatchPresenter(this, request, gson)
-            EspressoIdlingResource.increment()
+            //EspressoIdlingResource.increment()
             presenter.getTeamBadge(team)
         }
     }

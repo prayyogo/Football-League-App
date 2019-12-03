@@ -26,7 +26,7 @@ class DetailLeagueActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        createUI()
+       // createUI()
     }
 
     private fun createUI() {
