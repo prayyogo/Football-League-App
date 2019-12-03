@@ -8,8 +8,12 @@
     <string name="colon">:</string>
     <string name="strip">-</string>
     <string name="search">Search</string>
+    <string name="match_favorites">Match Favorites</string>
     <string name="no_found_data">No Found Data</string>
     <string name="no_event_match">No Event Match</string>
+    <string name="no_favorite_match">No Favorite Match</string>
+    <string name="add_favorite_match">Added to Favorite</string>
+    <string name="removed_favorite_match">Removed to Favorite</string>
     <string name="information">INFORMATION</string>
     <string name="time">Time</string>
     <string name="goals_detail">Goal Detail</string>
@@ -30,4 +34,7 @@
         <item>Argentina</item>
         <item>Brazil</item>
     </string-array>
+    <string name="detail">Detail</string>
+    <string name="team">Team</string>
+    <string name="standings">Standings</string>
 </resources>

@@ -10,4 +10,8 @@
             app:showAsAction="ifRoom|collapseActionView"
             app:actionViewClass="android.support.v7.widget.SearchView"
             />
+    <item
+            android:id="@+id/action_match_favorite"
+            android:title="@string/match_favorites"
+            app:showAsAction="never"/>
 </menu>

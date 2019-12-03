@@ -7,13 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.dicoding.prayogo.footballLeagueApp.R
 import com.dicoding.prayogo.footballLeagueApp.model.League
 import com.squareup.picasso.Picasso
 import org.jetbrains.anko.*
 import com.dicoding.prayogo.footballLeagueApp.R.id.*
 
-class MainAdapter (private val leagues: List<League>, private val listener: (League) -> Unit)
-    : RecyclerView.Adapter<TeamViewHolder>() {
+class MainAdapter(private val leagues: List<League>, private val listener: (League) -> Unit) :
+    RecyclerView.Adapter<TeamViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeamViewHolder {
         return TeamViewHolder(
@@ -24,7 +25,7 @@ class MainAdapter (private val leagues: List<League>, private val listener: (Lea
     }
 
     override fun onBindViewHolder(holder: TeamViewHolder, position: Int) {
-        holder.bindItem(leagues[position],listener)
+        holder.bindItem(leagues[position], listener)
     }
 
     override fun getItemCount(): Int = leagues.size
@@ -47,7 +48,7 @@ class LeaguesUI : AnkoComponent<ViewGroup> {
                     }.lparams {
                         height = dip(80)
                         width = dip(80)
-                        gravity= Gravity.CENTER
+                        gravity = Gravity.CENTER
                         margin = dip(16)
                     }
 
@@ -65,13 +66,17 @@ class LeaguesUI : AnkoComponent<ViewGroup> {
     }
 }
 
-class TeamViewHolder(view: View) : RecyclerView.ViewHolder(view){
+class TeamViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     private val leagueLogo: ImageView = view.find(img_league_logo)
-    private val leagueName : TextView = view.find(tv_league_name)
+    private val leagueName: TextView = view.find(tv_league_name)
 
     fun bindItem(leagues: League, listener: (League) -> Unit) {
-        leagues.leagueLogo?.let { Picasso.get().load(it).fit().into(leagueLogo) }
+        leagues.leagueLogo?.let {
+            Picasso.get().load(it).placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_not_found).fit().into(leagueLogo)
+        }
+
         leagueName.text = leagues.leagueName
         itemView.setOnClickListener {
             listener(leagues)

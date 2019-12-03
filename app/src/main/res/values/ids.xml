@@ -28,4 +28,21 @@
     <item name="tv_team_lose_mid_field" type="id" />
     <item name="tv_team_lose_forward" type="id" />
     <item name="tv_team_lose_substitutes" type="id" />
+
+    <item name="rv_league_list" type="id" />
+    <item name="rv_previous_match_list" type="id" />
+    <item name="rv_next_match_list" type="id" />
+    <item name="rv_favorite_previous_match_list" type="id" />
+    <item name="rv_favorite_next_match_list" type="id" />
+    <item name="spinner" type="id" />
+    <item name="spinner_detail" type="id" />
+    <item name="tab_layout_match" type="id" />
+    <item name="tab_layout_detail" type="id" />
+    <item name="tab_layout_favorite" type="id" />
+
+    <item name="refresh_league_list" type="id" />
+    <item name="refresh_favorite_previous_match_list" type="id" />
+    <item name="refresh_favorite_next_match_list" type="id" />
+    <item name="refresh_previous_match_list" type="id" />
+    <item name="refresh_next_match_list" type="id" />
 </resources>

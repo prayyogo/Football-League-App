@@ -9,14 +9,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.dicoding.prayogo.footballLeagueApp.model.Match
 import com.dicoding.prayogo.footballLeagueApp.R
 import com.dicoding.prayogo.footballLeagueApp.R.id.*
+import com.dicoding.prayogo.footballLeagueApp.database.FavoriteMatch
 import com.squareup.picasso.Picasso
 import org.jetbrains.anko.*
 
-class MatchAdapter(private val match: List<Match>, private val listener: (Match) -> Unit) :
-    RecyclerView.Adapter<MatchAdapter.ViewHolder>() {
+class FavoriteMatchAdapter(
+    private val favoriteMatch: List<FavoriteMatch>,
+    private val listener: (FavoriteMatch) -> Unit
+) :
+    RecyclerView.Adapter<FavoriteMatchAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(
@@ -25,10 +28,10 @@ class MatchAdapter(private val match: List<Match>, private val listener: (Match)
             )
         )
 
-    override fun getItemCount(): Int = match.size
+    override fun getItemCount(): Int = favoriteMatch.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bindItem(match[position], listener)
+        holder.bindItem(favoriteMatch[position], listener)
     }
 
     class MatchUI : AnkoComponent<ViewGroup> {
@@ -150,7 +153,7 @@ class MatchAdapter(private val match: List<Match>, private val listener: (Match)
         private val teamLoseName: TextView = itemView.find(tv_team_lose_name)
         private val teamLoseScore: TextView = itemView.find(tv_team_lose_score)
 
-        fun bindItem(matches: Match, listener: (Match) -> Unit) {
+        fun bindItem(matches: FavoriteMatch, listener: (FavoriteMatch) -> Unit) {
             matchDate.text = matches.dateMatch
 
             matches.winBadge.let {
@@ -171,7 +174,7 @@ class MatchAdapter(private val match: List<Match>, private val listener: (Match)
         }
 
         private fun setDataToText(txt: TextView?, data: String?) {
-            if (data.isNullOrEmpty()) {
+            if (data == "" || data == null) {
                 txt?.text = "-"
             } else {
                 txt?.text = data

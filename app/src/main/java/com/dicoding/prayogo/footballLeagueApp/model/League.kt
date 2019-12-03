@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class League (
+data class League(
     @SerializedName("idLeague")
     var leagueId:String?,
     @SerializedName("strBadge")

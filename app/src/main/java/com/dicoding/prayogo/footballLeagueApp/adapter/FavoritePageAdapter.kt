@@ -4,15 +4,16 @@ import android.content.Context
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import com.dicoding.prayogo.footballLeagueApp.NextMatchFragment
-import com.dicoding.prayogo.footballLeagueApp.PreviousMatchFragment
 import com.dicoding.prayogo.footballLeagueApp.R
+import com.dicoding.prayogo.footballLeagueApp.favorite.FavoriteNextMatchFragment
+import com.dicoding.prayogo.footballLeagueApp.favorite.FavoritePreviousMatchFragment
 
-class PageAdapterMatch (fm: FragmentManager, private val context: Context): FragmentPagerAdapter(fm){
+class FavoritePageAdapter(fm: FragmentManager, private val context: Context) :
+    FragmentPagerAdapter(fm) {
 
     private val pages = listOf(
-        PreviousMatchFragment(),
-        NextMatchFragment()
+        FavoritePreviousMatchFragment(),
+        FavoriteNextMatchFragment()
     )
 
     override fun getItem(position: Int): Fragment {
@@ -24,7 +25,7 @@ class PageAdapterMatch (fm: FragmentManager, private val context: Context): Frag
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
-        return when(position){
+        return when (position) {
             0 -> context.resources?.getString(R.string.previous_match)
             else -> context.resources?.getString(R.string.next_match)
         }.toString()

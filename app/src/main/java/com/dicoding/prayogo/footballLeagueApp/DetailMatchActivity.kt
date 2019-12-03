@@ -1,73 +1,88 @@
 package com.dicoding.prayogo.footballLeagueApp
 
+import android.database.sqlite.SQLiteConstraintException
 import android.graphics.Color
 import android.graphics.Typeface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.dicoding.prayogo.footballLeagueApp.api.ApiRepository
+import com.dicoding.prayogo.footballLeagueApp.database.database
+import com.dicoding.prayogo.footballLeagueApp.database.FavoriteMatch
 import com.dicoding.prayogo.footballLeagueApp.model.Match
 import com.dicoding.prayogo.footballLeagueApp.model.Team
 import com.dicoding.prayogo.footballLeagueApp.presenter.MatchPresenter
+import com.dicoding.prayogo.footballLeagueApp.test.EspressoIdlingResource
 import com.dicoding.prayogo.footballLeagueApp.util.invisible
 import com.dicoding.prayogo.footballLeagueApp.util.visible
 import com.dicoding.prayogo.footballLeagueApp.view.MatchView
+import org.jetbrains.anko.db.classParser
+import org.jetbrains.anko.db.delete
+import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.db.select
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import org.jetbrains.anko.*
+import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.support.v4.onRefresh
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
-class DetailMatchActivity : AppCompatActivity(),MatchView {
+class DetailMatchActivity : AppCompatActivity(), MatchView {
 
     private var dataMatch: MutableList<Match> = mutableListOf()
-    private var match: Match?=null
-    private var eventId:String?=null
+    private var match: Match? = null
+    private var nextMatch: Boolean? = null
+    private lateinit var eventId: String
     private var listTeamName: MutableList<String?> = mutableListOf()
-    private lateinit var tv_dateMatch: TextView
-    private lateinit var tv_timeMatch: TextView
-    private var index:Int=0
-    private lateinit var tv_noFoundData: TextView
+    private lateinit var dateMatchTextView: TextView
+    private lateinit var timeMatchTextView: TextView
+    private var index: Int = 0
+    private var menuItem: Menu? = null
+    private var isFavorite: Boolean = false
+    private lateinit var noFoundDataTextView: TextView
     private lateinit var presenter: MatchPresenter
     private lateinit var progressBar: ProgressBar
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private var request = ApiRepository()
     private var gson = Gson()
-    // Variable win team
-    private lateinit var img_badgeWinTeam: ImageView
-    private lateinit var tv_nameWinTeam: TextView
-    private lateinit var tv_scoreWinTeam: TextView
-    private lateinit var tv_goalDetailWinTeam: TextView
-    private lateinit var tv_yellowCardWinTeam: TextView
-    private lateinit var tv_redCardWinTeam: TextView
-    private lateinit var tv_goalKeeperWinTeam: TextView
-    private lateinit var tv_defenseWinTeam: TextView
-    private lateinit var tv_midFieldWinTeam: TextView
-    private lateinit var tv_fowardWinTeam: TextView
-    private lateinit var tv_substituteWinTeam: TextView
-    // Variable lose team
-    private lateinit var img_badgeLoseTeam: ImageView
-    private lateinit var tv_nameLoseTeam: TextView
-    private lateinit var tv_scoreLoseTeam: TextView
-    private lateinit var tv_goalDetailLoseTeam: TextView
-    private lateinit var tv_yellowCardLoseTeam: TextView
-    private lateinit var tv_redCardLoseTeam: TextView
-    private lateinit var tv_goalKeeperLoseTeam: TextView
-    private lateinit var tv_defenseLoseTeam: TextView
-    private lateinit var tv_midFieldLoseTeam: TextView
-    private lateinit var tv_fowardLoseTeam: TextView
-    private lateinit var tv_substituteLoseTeam: TextView
+
+    private lateinit var badgeWinTeamImage: ImageView
+    private lateinit var nameWinTeamTextView: TextView
+    private lateinit var scoreWinTeamTextView: TextView
+    private lateinit var goalDetailWinTeamTextView: TextView
+    private lateinit var yellowCardWinTeamTextView: TextView
+    private lateinit var redCardWinTeamTextView: TextView
+    private lateinit var goalKeeperWinTeamTextView: TextView
+    private lateinit var defenseWinTeamTextView: TextView
+    private lateinit var midFieldWinTeamTextView: TextView
+    private lateinit var fowardWinTeamTextView: TextView
+    private lateinit var substituteWinTeamTextView: TextView
+
+    private lateinit var badgeLoseTeamImage: ImageView
+    private lateinit var nameLoseTeamTextView: TextView
+    private lateinit var scoreLoseTeamTextView: TextView
+    private lateinit var goalDetailLoseTeamTextView: TextView
+    private lateinit var yellowCardLoseTeamTextView: TextView
+    private lateinit var redCardLoseTeamTextView: TextView
+    private lateinit var goalKeeperLoseTeamTextView: TextView
+    private lateinit var defenseLoseTeamTextView: TextView
+    private lateinit var midFieldLoseTeamTextView: TextView
+    private lateinit var fowardLoseTeamTextView: TextView
+    private lateinit var substituteLoseTeamTextView: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //UI
         frameLayout {
-            tv_noFoundData = textView {
+            noFoundDataTextView = textView {
                 text = resources.getString(R.string.no_event_match)
                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                 textSize = 20f
@@ -102,7 +117,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                 orientation = LinearLayout.VERTICAL
                 bottomPadding = dip(16)
 
-                tv_dateMatch = textView {
+                dateMatchTextView = textView {
                     backgroundColor = Color.parseColor("#FFB74A")
                     textAlignment = View.TEXT_ALIGNMENT_CENTER
                     textSize = 25f
@@ -123,13 +138,13 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                         topPadding = dip(16)
                         setPaddingRelative(paddingStart, paddingTop, dip(16), paddingBottom)
                         bottomPadding = dip(16)
-                        img_badgeWinTeam = imageView {
+                        badgeWinTeamImage = imageView {
                             contentDescription = resources.getString(R.string.badge_team)
                             scaleType = ImageView.ScaleType.FIT_XY
                         }.lparams(width = dip(80), height = dip(80)) {
                             gravity = Gravity.CENTER
                         }
-                        tv_nameWinTeam = textView {
+                        nameWinTeamTextView = textView {
                             textAlignment = View.TEXT_ALIGNMENT_CENTER
                             textSize = 20f
                             textColor = Color.BLACK
@@ -138,7 +153,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                             gravity = Gravity.CENTER
                         }
                     }.lparams(width = dip(130))
-                    tv_scoreWinTeam = textView {
+                    scoreWinTeamTextView = textView {
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                         textSize = 25f
                         textColor = Color.BLACK
@@ -159,7 +174,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                         marginStart = dip(10)
                         marginEnd = dip(10)
                     }
-                    tv_scoreLoseTeam = textView {
+                    scoreLoseTeamTextView = textView {
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                         textSize = 25f
                         textColor = Color.BLACK
@@ -175,13 +190,13 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                         topPadding = dip(16)
                         setPaddingRelative(paddingStart, paddingTop, dip(16), paddingBottom)
                         bottomPadding = dip(16)
-                        img_badgeLoseTeam = imageView {
+                        badgeLoseTeamImage = imageView {
                             contentDescription = resources.getString(R.string.badge_team)
                             scaleType = ImageView.ScaleType.FIT_XY
                         }.lparams(width = dip(80), height = dip(80)) {
                             gravity = Gravity.CENTER
                         }
-                        tv_nameLoseTeam = textView {
+                        nameLoseTeamTextView = textView {
                             textAlignment = View.TEXT_ALIGNMENT_CENTER
                             textSize = 20f
                             textColor = Color.BLACK
@@ -217,7 +232,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                         }.lparams {
                             gravity = Gravity.CENTER
                         }
-                        tv_timeMatch = textView {
+                        timeMatchTextView = textView {
                             textAlignment = View.TEXT_ALIGNMENT_CENTER
                             textSize = 20f
                             setTypeface(typeface, Typeface.BOLD)
@@ -228,7 +243,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                             columnCount = 3
                             rowCount = 4
                             useDefaultMargins = true
-                            tv_goalDetailWinTeam = textView {
+                            goalDetailWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -246,7 +261,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_goalDetailLoseTeam = textView {
+                            goalDetailLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -254,7 +269,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(135)
                                 gravity = Gravity.CENTER
                             }
-                            tv_yellowCardWinTeam = textView {
+                            yellowCardWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -272,7 +287,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_yellowCardLoseTeam = textView {
+                            yellowCardLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -280,7 +295,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(135)
                                 gravity = Gravity.CENTER
                             }
-                            tv_redCardWinTeam = textView {
+                            redCardWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -298,7 +313,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_redCardLoseTeam = textView {
+                            redCardLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -306,7 +321,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(135)
                                 gravity = Gravity.CENTER
                             }
-                            tv_goalKeeperWinTeam = textView {
+                            goalKeeperWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -324,7 +339,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_goalKeeperLoseTeam = textView {
+                            goalKeeperLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -332,7 +347,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(135)
                                 gravity = Gravity.CENTER
                             }
-                            tv_defenseWinTeam = textView {
+                            defenseWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -350,7 +365,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_defenseLoseTeam = textView {
+                            defenseLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -358,7 +373,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(135)
                                 gravity = Gravity.CENTER
                             }
-                            tv_midFieldWinTeam = textView {
+                            midFieldWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -376,7 +391,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_midFieldLoseTeam = textView {
+                            midFieldLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -385,7 +400,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 gravity = Gravity.CENTER
                             }
                             //Forward
-                            tv_fowardWinTeam = textView {
+                            fowardWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -403,7 +418,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_fowardLoseTeam = textView {
+                            fowardLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 setTypeface(typeface, Typeface.NORMAL)
@@ -412,7 +427,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 gravity = Gravity.CENTER
                             }
 
-                            tv_substituteWinTeam = textView {
+                            substituteWinTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -430,7 +445,7 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
                                 width = dip(100)
                                 gravity = Gravity.CENTER_VERTICAL
                             }
-                            tv_substituteLoseTeam = textView {
+                            substituteLoseTeamTextView = textView {
                                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                                 textSize = 18f
                                 textColor = Color.BLACK
@@ -446,30 +461,158 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
             }
         }
 
-
-        supportActionBar?.title =resources.getString(R.string.detail_match)
+        supportActionBar?.title = resources.getString(R.string.detail_match)
         val intent = intent
-        eventId = intent.getStringExtra(DetailLeagueActivity.match)
+        eventId = intent.getStringExtra(DetailLeagueActivity.MATCH)
+        nextMatch = intent.getBooleanExtra(DetailLeagueActivity.TYPE_MATCH, false)
         loadData(eventId)
+        favoriteState()
     }
-    private fun setDataToText(txt:TextView?, data:String?){
-        if(data==""||data==null){
-            txt?.text=resources.getString(R.string.strip)
-        }else{
-            txt?.text=data
+
+    private fun setDataToText(txt: TextView?, data: String?) {
+        if (data == "" || data == null) {
+            txt?.text = resources.getString(R.string.strip)
+        } else {
+            txt?.text = data
         }
     }
-    private fun loadData(eventId:String?){
+
+    private fun loadData(eventId: String?) {
         request = ApiRepository()
         gson = Gson()
-        presenter =
-            MatchPresenter(this, request, gson)
+        presenter = MatchPresenter(this, request, gson)
+        EspressoIdlingResource.increment()
         presenter.getMatchDetail(eventId)
 
         swipeRefresh.onRefresh {
             presenter.getMatchDetail(eventId)
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.detail_match_menu, menu)
+        menuItem = menu
+        setFavorite()
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            R.id.add_to_favorite -> {
+                if (!isFavorite) {
+                    addToFavorite()
+                } else {
+                    removeFromFavorite()
+                }
+                isFavorite = !isFavorite
+                setFavorite()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun addToFavorite() {
+        try {
+            if (nextMatch == false) {
+                database.use {
+                    insert(
+                        FavoriteMatch.TABLE_FAVORITE_PREVIOUS_MATCH,
+                        FavoriteMatch.EVENT_ID to match?.eventId,
+                        FavoriteMatch.LEAGUE_ID to match?.leagueId,
+                        FavoriteMatch.DATE_MATCH to match?.dateMatch,
+                        FavoriteMatch.WIN_TEAM to match?.winTeam,
+                        FavoriteMatch.WIN_SCORE to match?.winScore,
+                        FavoriteMatch.WIN_BADGE to match?.winBadge,
+                        FavoriteMatch.LOSE_TEAM to match?.loseTeam,
+                        FavoriteMatch.LOSE_SCORE to match?.loseScore,
+                        FavoriteMatch.LOSE_BADGE to match?.loseBadge
+                    )
+                }
+            } else {
+                database.use {
+                    insert(
+                        FavoriteMatch.TABLE_FAVORITE_NEXT_MATCH,
+                        FavoriteMatch.EVENT_ID to match?.eventId,
+                        FavoriteMatch.LEAGUE_ID to match?.leagueId,
+                        FavoriteMatch.DATE_MATCH to match?.dateMatch,
+                        FavoriteMatch.WIN_TEAM to match?.winTeam,
+                        FavoriteMatch.WIN_SCORE to match?.winScore,
+                        FavoriteMatch.WIN_BADGE to match?.winBadge,
+                        FavoriteMatch.LOSE_TEAM to match?.loseTeam,
+                        FavoriteMatch.LOSE_SCORE to match?.loseScore,
+                        FavoriteMatch.LOSE_BADGE to match?.loseBadge
+                    )
+                }
+            }
+            swipeRefresh.snackbar(resources.getString(R.string.add_favorite_match)).show()
+        } catch (e: SQLiteConstraintException) {
+            swipeRefresh.snackbar(e.localizedMessage).show()
+        }
+    }
+
+    private fun removeFromFavorite() {
+        try {
+            if (nextMatch == false) {
+                database.use {
+                    delete(
+                        FavoriteMatch.TABLE_FAVORITE_PREVIOUS_MATCH, "(EVENT_ID = {id})",
+                        "id" to eventId
+                    )
+                }
+            } else {
+                database.use {
+                    delete(
+                        FavoriteMatch.TABLE_FAVORITE_NEXT_MATCH, "(EVENT_ID = {id})",
+                        "id" to eventId
+                    )
+                }
+            }
+            swipeRefresh.snackbar(resources.getString(R.string.removed_favorite_match)).show()
+
+        } catch (e: SQLiteConstraintException) {
+            swipeRefresh.snackbar(e.localizedMessage).show()
+        }
+    }
+
+    private fun favoriteState() {
+        if (nextMatch == false) {
+            database.use {
+                val result = select(FavoriteMatch.TABLE_FAVORITE_PREVIOUS_MATCH)
+                    .whereArgs(
+                        "(EVENT_ID = {id})",
+                        "id" to eventId
+                    )
+                val favorite = result.parseList(classParser<FavoriteMatch>())
+                if (favorite.isNotEmpty()) isFavorite = true
+            }
+        } else {
+            database.use {
+                val result = select(FavoriteMatch.TABLE_FAVORITE_NEXT_MATCH)
+                    .whereArgs(
+                        "(EVENT_ID = {id})",
+                        "id" to eventId
+                    )
+                val favorite = result.parseList(classParser<FavoriteMatch>())
+                if (favorite.isNotEmpty()) isFavorite = true
+            }
+        }
+    }
+
+    private fun setFavorite() {
+        if (isFavorite)
+            menuItem?.getItem(0)?.icon =
+                ContextCompat.getDrawable(this, R.drawable.ic_added_to_favorites)
+        else
+            menuItem?.getItem(0)?.icon =
+                ContextCompat.getDrawable(this, R.drawable.ic_add_to_favorites)
+    }
+
     override fun showLoading() {
         progressBar.visible()
     }
@@ -477,67 +620,83 @@ class DetailMatchActivity : AppCompatActivity(),MatchView {
     override fun hideLoading() {
         progressBar.invisible()
     }
+
     override fun showMatchList(data: List<Match>) {
         swipeRefresh.isRefreshing = false
-        tv_dateMatch.text=match?.dateMatch
-        tv_timeMatch.text=match?.timeMatch
-        match?.winBadge?.let { Picasso.get().load(it).fit().into(img_badgeWinTeam) }
-        match?.loseBadge?.let { Picasso.get().load(it).fit().into(img_badgeLoseTeam)}
-        tv_nameWinTeam.text=match?.winTeam
-        tv_nameLoseTeam.text=match?.loseTeam
-        setDataToText(tv_scoreWinTeam,match?.winScore)
-        setDataToText(tv_scoreLoseTeam,match?.loseScore)
+        dateMatchTextView.text = match?.dateMatch
+        timeMatchTextView.text = match?.timeMatch
+        match?.winBadge?.let {
+            Picasso.get().load(it).fit().placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_not_found).into(badgeWinTeamImage)
+        }
+        match?.loseBadge?.let {
+            Picasso.get().load(it).fit().placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_not_found).into(badgeLoseTeamImage)
+        }
+        nameWinTeamTextView.text = match?.winTeam
+        nameLoseTeamTextView.text = match?.loseTeam
+        setDataToText(scoreWinTeamTextView, match?.winScore)
+        setDataToText(scoreLoseTeamTextView, match?.loseScore)
         //Detail
         //Win team
-        setDataToText(tv_goalDetailWinTeam,match?.winGoalDetail)
-        setDataToText(tv_yellowCardWinTeam,match?.winYellowCard)
-        setDataToText(tv_redCardWinTeam,match?.winRedCard)
-        setDataToText(tv_goalKeeperWinTeam,match?.winGoalKeeper)
-        setDataToText(tv_defenseWinTeam,match?.winDefense)
-        setDataToText(tv_midFieldWinTeam,match?.winMidField)
-        setDataToText(tv_fowardWinTeam,match?.winForward)
-        setDataToText(tv_substituteWinTeam,match?.winSubstitutes)
+        setDataToText(goalDetailWinTeamTextView, match?.winGoalDetail)
+        setDataToText(yellowCardWinTeamTextView, match?.winYellowCard)
+        setDataToText(redCardWinTeamTextView, match?.winRedCard)
+        setDataToText(goalKeeperWinTeamTextView, match?.winGoalKeeper)
+        setDataToText(defenseWinTeamTextView, match?.winDefense)
+        setDataToText(midFieldWinTeamTextView, match?.winMidField)
+        setDataToText(fowardWinTeamTextView, match?.winForward)
+        setDataToText(substituteWinTeamTextView, match?.winSubstitutes)
         //Lose team
-        setDataToText(tv_goalDetailLoseTeam,match?.loseGoalDetail)
-        setDataToText(tv_yellowCardLoseTeam,match?.loseYellowCard)
-        setDataToText(tv_redCardLoseTeam,match?.loseRedCard)
-        setDataToText(tv_goalKeeperLoseTeam,match?.loseGoalKeeper)
-        setDataToText(tv_defenseLoseTeam,match?.loseDefense)
-        setDataToText(tv_midFieldLoseTeam,match?.loseMidField)
-        setDataToText(tv_fowardLoseTeam,match?.loseForward)
-        setDataToText(tv_substituteLoseTeam,match?.loseSubstitutes)
+        setDataToText(goalDetailLoseTeamTextView, match?.loseGoalDetail)
+        setDataToText(yellowCardLoseTeamTextView, match?.loseYellowCard)
+        setDataToText(redCardLoseTeamTextView, match?.loseRedCard)
+        setDataToText(goalKeeperLoseTeamTextView, match?.loseGoalKeeper)
+        setDataToText(defenseLoseTeamTextView, match?.loseDefense)
+        setDataToText(midFieldLoseTeamTextView, match?.loseMidField)
+        setDataToText(fowardLoseTeamTextView, match?.loseForward)
+        setDataToText(substituteLoseTeamTextView, match?.loseSubstitutes)
     }
 
     override fun setTeamBadge(data: Team) {
+        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+            EspressoIdlingResource.decrement()
+        }
         index++
-            if(match?.winTeam==data.teamName){
-                match?.winBadge=data.teamBadge
-            }
-            if(match?.loseTeam==data.teamName){
-                match?.loseBadge=data.teamBadge
-            }
+        if (match?.winTeam == data.teamName) {
+            match?.winBadge = data.teamBadge
+        }
+        if (match?.loseTeam == data.teamName) {
+            match?.loseBadge = data.teamBadge
+        }
 
-        if(index>=listTeamName.size){
+        if (index >= listTeamName.size) {
             showMatchList(dataMatch)
         }
     }
+
     override fun getTeamBadge(data: List<Match>) {
+        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+            EspressoIdlingResource.decrement()
+        }
         dataMatch.clear()
         dataMatch.addAll(data)
-        match=data[0]
+        match = data[0]
         listTeamName.clear()
         listTeamName.add(match?.winTeam)
         listTeamName.add(match?.loseTeam)
-        for(team in listTeamName) {
-            presenter =
-                MatchPresenter(this, request, gson)
+        for (team in listTeamName) {
+            presenter = MatchPresenter(this, request, gson)
+            EspressoIdlingResource.increment()
             presenter.getTeamBadge(team)
         }
     }
+
     override fun showNoFoundText() {
-        tv_noFoundData.visibility=View.VISIBLE
+        noFoundDataTextView.visibility = View.VISIBLE
     }
+
     override fun hideNoFoundText() {
-        tv_noFoundData.visibility=View.INVISIBLE
+        noFoundDataTextView.visibility = View.INVISIBLE
     }
 }

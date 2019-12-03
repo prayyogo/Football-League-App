@@ -1,4 +1,5 @@
 package com.dicoding.prayogo.footballLeagueApp
+
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
@@ -14,6 +15,7 @@ import com.dicoding.prayogo.footballLeagueApp.adapter.MainAdapter
 import com.dicoding.prayogo.footballLeagueApp.api.ApiRepository
 import com.dicoding.prayogo.footballLeagueApp.model.League
 import com.dicoding.prayogo.footballLeagueApp.presenter.MainPresenter
+import com.dicoding.prayogo.footballLeagueApp.test.EspressoIdlingResource
 import com.dicoding.prayogo.footballLeagueApp.util.invisible
 import com.dicoding.prayogo.footballLeagueApp.util.visible
 import com.dicoding.prayogo.footballLeagueApp.view.MainView
@@ -21,9 +23,10 @@ import com.google.gson.Gson
 import org.jetbrains.anko.support.v4.onRefresh
 
 class MainActivity : AppCompatActivity(), MainView {
-    companion object{
-        const val league="league"
+    companion object {
+        const val LEAGUE = "LEAGUE"
     }
+
     private var listLeague: MutableList<League> = mutableListOf()
     private lateinit var presenter: MainPresenter
     private lateinit var adapter: MainAdapter
@@ -37,29 +40,35 @@ class MainActivity : AppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
 
         linearLayout {
-            lparams (width = matchParent, height = wrapContent)
+            lparams(width = matchParent, height = wrapContent)
             orientation = LinearLayout.VERTICAL
             topPadding = dip(16)
             leftPadding = dip(16)
             rightPadding = dip(16)
 
-            spinner = spinner ()
+            spinner = spinner {
+                id = R.id.spinner
+            }
             swipeRefresh = swipeRefreshLayout {
-                setColorSchemeResources(colorAccent,
+                id=R.id.refresh_league_list
+                setColorSchemeResources(
+                    colorAccent,
                     android.R.color.holo_green_light,
                     android.R.color.holo_orange_light,
-                    android.R.color.holo_red_light)
+                    android.R.color.holo_red_light
+                )
 
-                relativeLayout{
-                    lparams (width = matchParent, height = wrapContent)
+                relativeLayout {
+                    lparams(width = matchParent, height = wrapContent)
 
                     rvLeague = recyclerView {
-                        lparams (width = matchParent, height = wrapContent)
-                        layoutManager = GridLayoutManager(context,2)
+                        id = R.id.rv_league_list
+                        lparams(width = matchParent, height = wrapContent)
+                        layoutManager = GridLayoutManager(context, 2)
                     }
 
                     progressBar = progressBar {
-                    }.lparams{
+                    }.lparams {
                         centerHorizontally()
                     }
                 }
@@ -69,13 +78,17 @@ class MainActivity : AppCompatActivity(), MainView {
 
     }
 
-    private fun getLeagueData(){
+    private fun getLeagueData() {
         val spinnerItems = resources.getStringArray(R.array.country_name)
-        val spinnerAdapter = ArrayAdapter(applicationContext, android.R.layout.simple_spinner_dropdown_item, spinnerItems)
+        val spinnerAdapter = ArrayAdapter(
+            applicationContext,
+            android.R.layout.simple_spinner_dropdown_item,
+            spinnerItems
+        )
         spinner.adapter = spinnerAdapter
 
         adapter = MainAdapter(listLeague) {
-            startActivity<DetailLeagueActivity>(league to it)
+            startActivity<DetailLeagueActivity>(LEAGUE to it)
             val toast = Toast.makeText(applicationContext, it.leagueName, Toast.LENGTH_SHORT)
             toast.show()
         }
@@ -83,12 +96,17 @@ class MainActivity : AppCompatActivity(), MainView {
 
         val request = ApiRepository()
         val gson = Gson()
-        presenter =
-            MainPresenter(this, request, gson)
+        presenter = MainPresenter(this, request, gson)
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
                 countryName = spinner.selectedItem.toString()
+                EspressoIdlingResource.increment()
                 presenter.getLeagueList(countryName)
             }
 
@@ -107,7 +125,11 @@ class MainActivity : AppCompatActivity(), MainView {
     override fun hideLoading() {
         progressBar.invisible()
     }
+
     override fun showLeagueList(data: List<League>) {
+        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+            EspressoIdlingResource.decrement()
+        }
         swipeRefresh.isRefreshing = false
         listLeague.clear()
         listLeague.addAll(data)

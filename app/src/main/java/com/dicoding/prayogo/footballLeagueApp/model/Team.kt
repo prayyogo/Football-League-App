@@ -5,16 +5,16 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class Team (
+data class Team(
     @SerializedName("idTeam")
-    var teamId: String? = null,
+    var teamId: String?,
     @SerializedName("strTeam")
-    var teamName: String? = null,
+    var teamName: String?,
     @SerializedName("idLeague")
-    var teamIdLeague: String? = null,
+    var teamIdLeague: String?,
     @SerializedName("strTeamBadge")
-    var teamBadge: String? = null
-): Parcelable
+    var teamBadge: String?
+) : Parcelable
 
 data class TeamResponse(
     val teams: List<Team>

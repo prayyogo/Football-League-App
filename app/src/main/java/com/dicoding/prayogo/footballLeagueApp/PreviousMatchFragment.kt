@@ -1,4 +1,5 @@
 package com.dicoding.prayogo.footballLeagueApp
+
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -18,6 +19,7 @@ import com.dicoding.prayogo.footballLeagueApp.api.ApiRepository
 import com.dicoding.prayogo.footballLeagueApp.model.Match
 import com.dicoding.prayogo.footballLeagueApp.model.Team
 import com.dicoding.prayogo.footballLeagueApp.presenter.MatchPresenter
+import com.dicoding.prayogo.footballLeagueApp.test.EspressoIdlingResource
 import com.dicoding.prayogo.footballLeagueApp.util.invisible
 import com.dicoding.prayogo.footballLeagueApp.util.visible
 import com.dicoding.prayogo.footballLeagueApp.view.MatchView
@@ -27,14 +29,14 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.onRefresh
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
-class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
+class PreviousMatchFragment : Fragment(), MatchView, AnkoComponent<Context> {
 
     private var listMatch: MutableList<Match> = mutableListOf()
     private var tempListMatch: MutableList<Match> = mutableListOf()
     private var listTeamName: MutableList<String?> = mutableListOf()
-    private var templistTeamName: List<String?> = mutableListOf()
-    private var index:Int=0
-    private lateinit var tv_noFoundData: TextView
+    private var tempListTeamName: List<String?> = mutableListOf()
+    private var index: Int = 0
+    private lateinit var noFoundDataTextView: TextView
     private lateinit var presenter: MatchPresenter
     private lateinit var adapter: MatchAdapter
     private lateinit var progressBar: ProgressBar
@@ -44,14 +46,14 @@ class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
     private var gson = Gson()
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         getMatchData()
     }
 
-    private fun getMatchData(){
+    private fun getMatchData() {
         adapter = MatchAdapter(listMatch) {
             val intent = Intent(activity, DetailMatchActivity::class.java)
-            intent.putExtra(DetailLeagueActivity.match, it.eventId)
+            intent.putExtra(DetailLeagueActivity.MATCH, it.eventId)
+            intent.putExtra(DetailLeagueActivity.TYPE_MATCH, false)
             startActivity(intent)
             val toast = Toast.makeText(context, it.winTeam, Toast.LENGTH_SHORT)
             toast.show()
@@ -60,12 +62,12 @@ class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
 
         request = ApiRepository()
         gson = Gson()
-        presenter =
-            MatchPresenter(this, request, gson)
-        presenter.getPreviousMatchList(DetailLeagueActivity.idLeague)
+        presenter = MatchPresenter(this, request, gson)
+        EspressoIdlingResource.increment()
+        presenter.getPreviousMatchList(DetailLeagueActivity.leagueId)
 
         swipeRefresh.onRefresh {
-            presenter.getPreviousMatchList(DetailLeagueActivity.idLeague)
+            presenter.getPreviousMatchList(DetailLeagueActivity.leagueId)
         }
     }
 
@@ -76,6 +78,7 @@ class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
     override fun hideLoading() {
         progressBar.invisible()
     }
+
     override fun showMatchList(data: List<Match>) {
         swipeRefresh.isRefreshing = false
         listMatch.clear()
@@ -84,42 +87,51 @@ class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
     }
 
     override fun setTeamBadge(data: Team) {
+        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+            EspressoIdlingResource.decrement()
+        }
         index++
-        for(match in tempListMatch){
-            if(match.winTeam==data.teamName){
-                match.winBadge=data.teamBadge
+        for (match in tempListMatch) {
+            if (match.winTeam == data.teamName) {
+                match.winBadge = data.teamBadge
             }
-            if(match.loseTeam==data.teamName){
-                match.loseBadge=data.teamBadge
+            if (match.loseTeam == data.teamName) {
+                match.loseBadge = data.teamBadge
             }
         }
-        if(index>=templistTeamName.size){
+        if (index >= tempListTeamName.size) {
             showMatchList(tempListMatch)
         }
     }
+
     override fun getTeamBadge(data: List<Match>) {
+        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+            EspressoIdlingResource.decrement()
+        }
         tempListMatch.clear()
         tempListMatch.addAll(data)
-       listTeamName.clear()
-        for(i in data){
+        listTeamName.clear()
+        for (i in data) {
             listTeamName.add(i.winTeam)
             listTeamName.add(i.loseTeam)
         }
-        templistTeamName=listTeamName.distinct()
+        tempListTeamName = listTeamName.distinct()
 
-        for(team in templistTeamName) {
-            presenter =
-                MatchPresenter(this, request, gson)
+        for (team in tempListTeamName) {
+            presenter = MatchPresenter(this, request, gson)
+            EspressoIdlingResource.increment()
             presenter.getTeamBadge(team)
         }
     }
 
     override fun showNoFoundText() {
-        tv_noFoundData.visibility=View.VISIBLE
+        noFoundDataTextView.visibility = View.VISIBLE
     }
+
     override fun hideNoFoundText() {
-        tv_noFoundData.visibility=View.INVISIBLE
+        noFoundDataTextView.visibility = View.INVISIBLE
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -127,10 +139,11 @@ class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
     ): View? {
         return createView(AnkoContext.create(requireContext()))
     }
+
     override fun createView(ui: AnkoContext<Context>): View = with(ui) {
 
         frameLayout {
-            tv_noFoundData = textView {
+            noFoundDataTextView = textView {
                 text = resources.getString(R.string.no_event_match)
                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                 textSize = 20f
@@ -146,6 +159,7 @@ class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
                 rightPadding = dip(16)
 
                 swipeRefresh = swipeRefreshLayout {
+                    id=R.id.refresh_previous_match_list
                     setColorSchemeResources(
                         R.color.colorAccent,
                         android.R.color.holo_green_light,
@@ -157,6 +171,7 @@ class PreviousMatchFragment : Fragment(), MatchView,AnkoComponent<Context>  {
                         lparams(width = matchParent, height = wrapContent)
 
                         rvMatch = recyclerView {
+                            id=R.id.rv_previous_match_list
                             lparams(width = matchParent, height = wrapContent)
                             layoutManager = LinearLayoutManager(context)
                         }
