@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), MainView {
         spinner.adapter = spinnerAdapter
 
         adapter = MainAdapter(listLeague) {
-           // startActivity<DetailLeagueActivity>(LEAGUE to it)
+            startActivity<DetailLeagueActivity>(LEAGUE to it)
             val toast = Toast.makeText(applicationContext, it.leagueName, Toast.LENGTH_SHORT)
             toast.show()
         }
@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity(), MainView {
                 id: Long
             ) {
                 countryName = spinner.selectedItem.toString()
-               //EspressoIdlingResource.increment()
+                EspressoIdlingResource.increment()
                 presenter.getLeagueList(countryName)
             }
 
@@ -127,9 +127,9 @@ class MainActivity : AppCompatActivity(), MainView {
     }
 
     override fun showLeagueList(data: List<League>) {
-       /* if (!EspressoIdlingResource.idlingresource.isIdleNow) {
+        if (!EspressoIdlingResource.idlingresource.isIdleNow) {
             EspressoIdlingResource.decrement()
-        }*/
+        }
         swipeRefresh.isRefreshing = false
         listLeague.clear()
         listLeague.addAll(data)

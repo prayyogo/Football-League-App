@@ -35,9 +35,7 @@
     <item name="rv_favorite_previous_match_list" type="id" />
     <item name="rv_favorite_next_match_list" type="id" />
     <item name="spinner" type="id" />
-    <item name="spinner_detail" type="id" />
-    <item name="tab_layout_match" type="id" />
-    <item name="tab_layout_detail" type="id" />
+    <item name="tab_layout" type="id" />
     <item name="tab_layout_favorite" type="id" />
 
     <item name="refresh_league_list" type="id" />

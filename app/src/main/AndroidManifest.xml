@@ -12,8 +12,8 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name=".favorite.FavoriteMatchActivity">
-    </activity>
+                android:name=".favorite.FavoriteMatchActivity"
+                android:label="@string/title_activity_favorite_match"></activity>
         <activity android:name=".DetailMatchActivity"></activity>
         <activity android:name=".DetailLeagueActivity" />
         <activity android:name=".MainActivity">

@@ -58,7 +58,7 @@ class MainActivityTest {
             RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(2, click())
         )
         Thread.sleep(1000)
-        onView(withId(tab_layout_match)).perform(selectTabAtPosition(1))
+        onView(withId(tab_layout)).perform(selectTabAtPosition(1))
         onView(withId(rv_next_match_list))
             .check(matches(isDisplayed()))
         onView(withId(rv_next_match_list)).perform(
@@ -67,7 +67,7 @@ class MainActivityTest {
             )
         )
 
-        onView(withId(tab_layout_match)).perform(selectTabAtPosition(0))
+        onView(withId(tab_layout)).perform(selectTabAtPosition(0))
 
         onView(withId(rv_previous_match_list))
             .check(matches(isDisplayed()))
