@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity(), MainView {
                 id = R.id.spinner
             }
             swipeRefresh = swipeRefreshLayout {
-                id=R.id.refresh_league_list
+                id = R.id.refresh_league_list
                 setColorSchemeResources(
                     colorAccent,
                     android.R.color.holo_green_light,

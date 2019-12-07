@@ -5,8 +5,8 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import com.dicoding.prayogo.footballLeagueApp.R
-import com.dicoding.prayogo.footballLeagueApp.favorite.FavoriteNextMatchFragment
-import com.dicoding.prayogo.footballLeagueApp.favorite.FavoritePreviousMatchFragment
+import com.dicoding.prayogo.footballLeagueApp.match.FavoriteNextMatchFragment
+import com.dicoding.prayogo.footballLeagueApp.match.FavoritePreviousMatchFragment
 
 class FavoritePageAdapter(fm: FragmentManager, private val context: Context) :
     FragmentPagerAdapter(fm) {

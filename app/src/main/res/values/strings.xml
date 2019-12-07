@@ -8,15 +8,23 @@
     <string name="colon">:</string>
     <string name="strip">-</string>
     <string name="search">Search</string>
-    <string name="match_favorites">Match Favorites</string>
+    <string name="favorite_match">Favorite Match</string>
+    <string name="team_list">Team List</string>
+    <string name="standings_list">Standings List</string>
+    <string name="favorite_team">Favorite Team</string>
+    <string name="favorites">Favorites</string>
+    <string name="teams">Teams</string>
+    <string name="detail_team">Detail Team</string>
     <string name="no_found_data">No Found Data</string>
+    <string name="no_team_data">No Team Data</string>
     <string name="no_event_match">No Event Match</string>
     <string name="no_favorite_match">No Favorite Match</string>
-    <string name="add_favorite_match">Added to Favorite</string>
-    <string name="removed_favorite_match">Removed to Favorite</string>
+    <string name="no_favorite_team">No Favorite Team</string>
+    <string name="add_favorite">Added to Favorite</string>
+    <string name="removed_favorite">Removed to Favorite</string>
     <string name="information">INFORMATION</string>
     <string name="time">Time</string>
-    <string name="goals_detail">Goal Detail</string>
+    <string name="detail_goals">Detail Goal</string>
     <string name="red_card">Red Card</string>
     <string name="yellow_card">Yellow Card</string>
     <string name="goal_keeper">Goal Keeper</string>
@@ -24,6 +32,8 @@
     <string name="mid_field">Mid Field</string>
     <string name="forward">Forward</string>
     <string name="substitutes">Substitute</string>
+    <string name="jersey">Jersey</string>
+    <string name="capacity">Capacity</string>
     <string-array name="country_name">
         <item>England</item>
         <item>Europe</item>
@@ -35,10 +45,15 @@
         <item>Brazil</item>
     </string-array>
     <string name="title_activity_favorite_match">FavoriteMatchActivity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="team_name">Team Name</string>
+    <string name="main_played">MP</string>
+    <string name="goals_for">GF</string>
+    <string name="goals_against">GA</string>
+    <string name="goals_difference">GD</string>
+    <string name="win">W</string>
+    <string name="loss">L</string>
+    <string name="draw">D</string>
+    <string name="total">T</string>
+
 </resources>

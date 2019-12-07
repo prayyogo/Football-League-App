@@ -14,17 +14,17 @@ import org.jetbrains.anko.*
 import com.dicoding.prayogo.footballLeagueApp.R.id.*
 
 class MainAdapter(private val leagues: List<League>, private val listener: (League) -> Unit) :
-    RecyclerView.Adapter<TeamViewHolder>() {
+    RecyclerView.Adapter<LeagueViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeamViewHolder {
-        return TeamViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeagueViewHolder {
+        return LeagueViewHolder(
             LeaguesUI().createView(
                 AnkoContext.create(parent.context, parent)
             )
         )
     }
 
-    override fun onBindViewHolder(holder: TeamViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: LeagueViewHolder, position: Int) {
         holder.bindItem(leagues[position], listener)
     }
 
@@ -66,20 +66,25 @@ class LeaguesUI : AnkoComponent<ViewGroup> {
     }
 }
 
-class TeamViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class LeagueViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     private val leagueLogo: ImageView = view.find(img_league_logo)
     private val leagueName: TextView = view.find(tv_league_name)
 
     fun bindItem(leagues: League, listener: (League) -> Unit) {
-        leagues.leagueLogo?.let {
-            Picasso.get().load(it).placeholder(R.drawable.img_placeholder)
-                .error(R.drawable.img_not_found).fit().into(leagueLogo)
-        }
-
+        loadImage(leagues.leagueLogo, leagueLogo)
         leagueName.text = leagues.leagueName
         itemView.setOnClickListener {
             listener(leagues)
+        }
+    }
+
+    private fun loadImage(url: String?, image: ImageView) {
+        if (url.isNullOrEmpty()) {
+            Picasso.get().load(R.drawable.img_placeholder).fit().into(image)
+        } else {
+            Picasso.get().load(url).placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_not_found).fit().into(image)
         }
     }
 }

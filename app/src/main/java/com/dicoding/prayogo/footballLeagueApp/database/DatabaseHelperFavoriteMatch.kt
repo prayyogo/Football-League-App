@@ -54,5 +54,5 @@ class DatabaseHelperFavoriteMatch(ctx: Context) :
     }
 }
 
-val Context.database: DatabaseHelperFavoriteMatch
+val Context.matchDatabase: DatabaseHelperFavoriteMatch
     get() = DatabaseHelperFavoriteMatch.getInstance(applicationContext)

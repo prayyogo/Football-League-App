@@ -16,7 +16,7 @@ import com.squareup.picasso.Picasso
 import org.jetbrains.anko.*
 
 class FavoriteMatchAdapter(
-    private val favoriteMatch: List<FavoriteMatch>,
+    private val favoriteMatches: List<FavoriteMatch>,
     private val listener: (FavoriteMatch) -> Unit
 ) :
     RecyclerView.Adapter<FavoriteMatchAdapter.ViewHolder>() {
@@ -28,10 +28,10 @@ class FavoriteMatchAdapter(
             )
         )
 
-    override fun getItemCount(): Int = favoriteMatch.size
+    override fun getItemCount(): Int = favoriteMatches.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bindItem(favoriteMatch[position], listener)
+        holder.bindItem(favoriteMatches[position], listener)
     }
 
     class MatchUI : AnkoComponent<ViewGroup> {
@@ -155,17 +155,10 @@ class FavoriteMatchAdapter(
 
         fun bindItem(matches: FavoriteMatch, listener: (FavoriteMatch) -> Unit) {
             matchDate.text = matches.dateMatch
-
-            matches.winBadge.let {
-                Picasso.get().load(it).fit().placeholder(R.drawable.img_placeholder)
-                    .error(R.drawable.img_not_found).into(teamWinBadge)
-            }
+            loadImage(matches.winBadge, teamWinBadge)
             teamWinName.text = matches.winTeam
             setDataToText(teamWinScore, matches.winScore)
-            matches.loseBadge.let {
-                Picasso.get().load(it).fit().placeholder(R.drawable.img_placeholder)
-                    .error(R.drawable.img_not_found).into(teamLoseBadge)
-            }
+            loadImage(matches.loseBadge, teamLoseBadge)
             teamLoseName.text = matches.loseTeam
             setDataToText(teamLoseScore, matches.loseScore)
             itemView.setOnClickListener {
@@ -178,6 +171,15 @@ class FavoriteMatchAdapter(
                 txt?.text = "-"
             } else {
                 txt?.text = data
+            }
+        }
+
+        private fun loadImage(url: String?, image: ImageView) {
+            if (url.isNullOrEmpty()) {
+                Picasso.get().load(R.drawable.img_placeholder).fit().into(image)
+            } else {
+                Picasso.get().load(url).placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_not_found).fit().into(image)
             }
         }
     }

@@ -1,3 +1,4 @@
+
 package com.dicoding.prayogo.footballLeagueApp
 
 import android.support.design.widget.TabLayout
@@ -84,12 +85,12 @@ class MainActivityTest {
         onView(withId(add_to_favorite))
             .check(matches(isDisplayed()))
         onView(withId(add_to_favorite)).perform(click())
-        onView(withText(R.string.add_favorite_match))
+        onView(withText(R.string.add_favorite))
             .check(matches(isDisplayed()))
         android.support.test.espresso.Espresso.pressBack()
 
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext())
-        onView(withText(R.string.match_favorites)).perform(click())
+        onView(withText(R.string.favorite_match)).perform(click())
         onView(withId(tab_layout_favorite)).perform(selectTabAtPosition(1))
 
         onView(withId(tab_layout_favorite)).perform(selectTabAtPosition(0))
@@ -109,7 +110,7 @@ class MainActivityTest {
         onView(withId(add_to_favorite))
             .check(matches(isDisplayed()))
         onView(withId(add_to_favorite)).perform(click())
-        onView(withText(R.string.removed_favorite_match))
+        onView(withText(R.string.removed_favorite))
             .check(matches(isDisplayed()))
         android.support.test.espresso.Espresso.pressBack()
         onView(withId(refresh_favorite_previous_match_list))

@@ -7,13 +7,15 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class League(
     @SerializedName("idLeague")
-    var leagueId:String?,
+    var leagueId: String?,
     @SerializedName("strBadge")
-    var leagueLogo:String?,
+    var leagueLogo: String?,
     @SerializedName("strLeague")
-    var leagueName:String?,
+    var leagueName: String?,
     @SerializedName("strDescriptionEN")
     val leagueDescription: String?
-):Parcelable
+) : Parcelable
+
 data class LeagueResponse(
-    val countrys: List<League>)
+    val countrys: List<League>
+)

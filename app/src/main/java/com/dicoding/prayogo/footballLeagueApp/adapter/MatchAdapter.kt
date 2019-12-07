@@ -152,17 +152,10 @@ class MatchAdapter(private val match: List<Match>, private val listener: (Match)
 
         fun bindItem(matches: Match, listener: (Match) -> Unit) {
             matchDate.text = matches.dateMatch
-
-            matches.winBadge.let {
-                Picasso.get().load(it).fit().placeholder(R.drawable.img_placeholder)
-                    .error(R.drawable.img_not_found).into(teamWinBadge)
-            }
+            loadImage(matches.winBadge, teamWinBadge)
             teamWinName.text = matches.winTeam
             setDataToText(teamWinScore, matches.winScore)
-            matches.loseBadge.let {
-                Picasso.get().load(it).fit().placeholder(R.drawable.img_placeholder)
-                    .error(R.drawable.img_not_found).into(teamLoseBadge)
-            }
+            loadImage(matches.loseBadge, teamLoseBadge)
             teamLoseName.text = matches.loseTeam
             setDataToText(teamLoseScore, matches.loseScore)
             itemView.setOnClickListener {
@@ -175,6 +168,15 @@ class MatchAdapter(private val match: List<Match>, private val listener: (Match)
                 txt?.text = "-"
             } else {
                 txt?.text = data
+            }
+        }
+
+        private fun loadImage(url: String?, image: ImageView) {
+            if (url.isNullOrEmpty()) {
+                Picasso.get().load(R.drawable.img_placeholder).fit().into(image)
+            } else {
+                Picasso.get().load(url).placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_not_found).fit().into(image)
             }
         }
     }

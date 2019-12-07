@@ -4,9 +4,9 @@ import android.content.Context
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import com.dicoding.prayogo.footballLeagueApp.NextMatchFragment
-import com.dicoding.prayogo.footballLeagueApp.PreviousMatchFragment
 import com.dicoding.prayogo.footballLeagueApp.R
+import com.dicoding.prayogo.footballLeagueApp.match.NextMatchFragment
+import com.dicoding.prayogo.footballLeagueApp.match.PreviousMatchFragment
 
 class MatchPageAdapter(fm: FragmentManager, private val context: Context) :
     FragmentPagerAdapter(fm) {

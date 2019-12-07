@@ -18,11 +18,13 @@ import android.widget.*
 import com.dicoding.prayogo.footballLeagueApp.adapter.MatchAdapter
 import com.dicoding.prayogo.footballLeagueApp.adapter.MatchPageAdapter
 import com.dicoding.prayogo.footballLeagueApp.api.ApiRepository
-import com.dicoding.prayogo.footballLeagueApp.favorite.FavoriteMatchActivity
+import com.dicoding.prayogo.footballLeagueApp.match.DetailMatchActivity
+import com.dicoding.prayogo.footballLeagueApp.match.FavoriteMatchActivity
 import com.dicoding.prayogo.footballLeagueApp.model.League
 import com.dicoding.prayogo.footballLeagueApp.model.Match
 import com.dicoding.prayogo.footballLeagueApp.model.Team
 import com.dicoding.prayogo.footballLeagueApp.presenter.MatchPresenter
+import com.dicoding.prayogo.footballLeagueApp.team.TeamActivity
 import com.dicoding.prayogo.footballLeagueApp.test.EspressoIdlingResource
 import com.dicoding.prayogo.footballLeagueApp.util.invisible
 import com.dicoding.prayogo.footballLeagueApp.util.visible
@@ -61,7 +63,6 @@ class DetailLeagueActivity : AppCompatActivity(),
     private var listTeamName: MutableList<String?> = mutableListOf()
     private var templistTeamName: List<String?> = mutableListOf()
     private var index: Int = 0
-   // private var delay: Boolean = false
     private lateinit var presenter: MatchPresenter
     private lateinit var adapter: MatchAdapter
     private lateinit var progressBar: ProgressBar
@@ -83,7 +84,7 @@ class DetailLeagueActivity : AppCompatActivity(),
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.clear()
         val inflater = menuInflater
-        inflater.inflate(R.menu.detail_menu, menu)
+        inflater.inflate(R.menu.detail_league_menu, menu)
 
         searchView = menu.findItem(R.id.action_search_menu).actionView as SearchView
         searchView.maxWidth = Integer.MAX_VALUE
@@ -185,6 +186,23 @@ class DetailLeagueActivity : AppCompatActivity(),
 
         swipeRefresh.onRefresh {
             presenter.getEventMatchList(team)
+        }
+    }
+
+    private fun setDataToText(txt: TextView?, data: String?) {
+        if (data == "" || data == null) {
+            txt?.text = resources.getString(R.string.strip)
+        } else {
+            txt?.text = data
+        }
+    }
+
+    private fun loadImage(url: String?, image: ImageView) {
+        if (url.isNullOrEmpty()) {
+            Picasso.get().load(R.drawable.img_placeholder).fit().into(image)
+        } else {
+            Picasso.get().load(url).placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_not_found).fit().into(image)
         }
     }
 
@@ -303,15 +321,9 @@ class DetailLeagueActivity : AppCompatActivity(),
         val intent = intent
         league = intent.getParcelableExtra(MainActivity.LEAGUE)
         nameLeagueTextView.text = league?.leagueName
-        if (league?.leagueDescription == "" || league?.leagueDescription == null) {
-            descLeagueTextView.text = resources.getString(R.string.strip)
-        } else {
-            descLeagueTextView.text = league?.leagueDescription
-        }
-        league?.leagueLogo?.let {
-            Picasso.get().load(it).fit().placeholder(R.drawable.img_placeholder)
-                .error(R.drawable.img_not_found).into(logoLeagueImage)
-        }
+        setDataToText(nameLeagueTextView, league?.leagueName)
+        setDataToText(descLeagueTextView, league?.leagueDescription)
+        loadImage(league?.leagueLogo, logoLeagueImage)
         leagueId = league?.leagueId
         supportActionBar?.title = league?.leagueName
     }
@@ -332,8 +344,16 @@ class DetailLeagueActivity : AppCompatActivity(),
             R.id.action_search_menu -> {
                 true
             }
-            R.id.action_match_favorite -> {
+            R.id.action_favorite_match -> {
                 startActivity<FavoriteMatchActivity>(LEAGUE_ID to league?.leagueId)
+                true
+            }
+            R.id.action_team_list -> {
+                startActivity<TeamActivity>(LEAGUE_ID to league?.leagueId)
+                true
+            }
+            R.id.action_standings_list -> {
+                startActivity<StandingsActivity>(LEAGUE_ID to league?.leagueId)
                 true
             }
             else ->
